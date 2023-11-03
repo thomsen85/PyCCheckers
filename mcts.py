@@ -1,7 +1,6 @@
 class Node:
     def __init__(self, name, parent=None):
         self.name = name
-        self.is_root = parent is None
         self.parent = parent
         self.data = [0, 0]
         self.children = []
@@ -13,26 +12,30 @@ class Node:
     def backpropegate(self, updater):
         self.data[0] += updater[0]
         self.data[1] += updater[1]
-        
+
         if not self.is_root:
             self.parent.backpropegate(updater)
-    
+
     def __eq__(self, obj):
         return self.name == obj
 
     def __str__(self):
         return f"{self.name}: {self.data}"
 
+    @property
+    def is_root(self):
+        return self.parent is None
+
 
 class Tree:
-    ''' A class for managing nodes'''
+    """A class for managing nodes"""
+
     def __init__(self, root_node):
         self.root_node = root_node
-        
-    
+
     def add_game(self, moves, won):
-        backprop_data = (1,1) if won else (0,1)
-        
+        backprop_data = (1, 1) if won else (0, 1)
+
         parent = self.root_node
         new_branch = False
         for move in moves:
@@ -61,15 +64,19 @@ class Tree:
 
         if len(parent.children) == 0 or depth > wanted_depth:
             return str(parent)
-        
-        for child in parent.children:
-            string += "\n" + "\t"*depth + "- " + self.get_visualization(child,
-                    wanted_depth, depth+1)
 
+        for child in parent.children:
+            string += (
+                "\n"
+                + "\t" * depth
+                + "- "
+                + self.get_visualization(child, wanted_depth, depth + 1)
+            )
 
         return string
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     print("----- Tree and Node Tester -----")
     root_node = Node("Start")
     tree = Tree(root_node)
@@ -82,5 +89,3 @@ if __name__=="__main__":
     tree.add_game(game3, False)
 
     print(tree.get_visualization(root_node))
-
-     
