@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 class Model(nn.Module):
     def __init__(self, input_channels, num_actions):
-        super(Model, self).__init()
+        super(Model, self).__init__()
 
         # Define the convolutional layers for processing the board state
         self.conv1 = nn.Conv2d(input_channels, 64, kernel_size=3, padding=1)

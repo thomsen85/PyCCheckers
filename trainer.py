@@ -1,38 +1,38 @@
-from ai import AI
+import torch
+import torch.nn.functional as F
+
 from board import Board
-import random
-from rich import print
-from rich.progress import track
-from mcts import Tree, Node
+from model import Model
+
+# optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+#
+# for epoch in range(num_epochs):
+#     for state, target_policy, target_value in training_data:
+#         predicted_policy, predicted_value = model(state)
+#
+#         policy_loss = torch.sum(-target_policy * predicted_policy)
+#         value_loss = F.mse_loss(predicted_value, target_value)
+#
+#         loss = value_loss + policy_loss
+#         print(loss)
+#
+#         optimizer.zero_grad()
+#         loss.backward()
+#         optimizer.step()
+#
 
 board = Board()
-ai1 = AI(1, board)
-ai2 = AI(2, board)
 
-explore = 20/100
+input_channels = Board.WIDTH * Board.HEIGHT
 
-root = Node("Start")
-tree1 = Tree(root)
+num_actions = 9
+learning_rate = 0.01
 
-for n in track(range(1000), "Playing out games..."):
-    moves = []
-    board.reset()
-    rounds = 0
-    while not board.is_won() and rounds < 450:
-        if random.random() < explore:
-            ai1_move = ai1.make_closer_move((12, 26))
-        else:
-            ai1_move = ai1.make_random_move()
+num_epochs = 10
 
-        if random.random() > explore:
-            ai2_move = ai2.make_closer_move((12,0))
-        else:
-            ai2_move = ai2.make_random_move()
 
-        moves.extend([ai1_move, ai2_move])
-        rounds += 1
+possible_actions = board.get_all_possible_actions()
 
-    print(f"### PLAYER {board.is_won()} won! ###")
-    tree1.add_game(moves, board.is_won()==1)
+print(len(possible_actions))
 
-print(tree1.get_visualization(root, 1))
+model = Model(input_channels, len(possible_actions))

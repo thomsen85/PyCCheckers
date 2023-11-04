@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class Board:
     """
     Class for managing a chinese checkers board.
@@ -54,6 +57,10 @@ class Board:
             self.fill_cells(Board.PLAYER_2_INIT_POS, Board.PLAYER_2_NR)
         else:
             raise NotImplementedError("Only two players are supported at the moment")
+
+    def get_state(self):
+        """Method for getting the state of the board as a flat numpy array"""
+        return np.array(self.board).flatten()
 
     def reset(self):
         self.board = Board.get_empty_board()
@@ -253,6 +260,22 @@ class Board:
             board.append(line_pattern)
 
         return board
+
+    @staticmethod
+    def get_all_possible_actions():
+        """Gets a list of all possible actions"""
+        empty_board = Board.get_empty_board()
+        actions = []
+        for x in range(Board.WIDTH):
+            for y in range(Board.HEIGHT):
+                if empty_board[y][x] == 1:
+                    continue
+                for to_x in range(Board.WIDTH):
+                    for to_y in range(Board.HEIGHT):
+                        if empty_board[to_y][to_x] == 1 and (x, y) != (to_x, to_y):
+                            actions.append((x, y, to_x, to_y))
+
+        return actions
 
 
 if __name__ == "__main__":

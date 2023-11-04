@@ -1,6 +1,6 @@
 .idea
 
-__pycache
+__pycache__/
 profiler.py
 speed_test.py
 fast_trainer.py
