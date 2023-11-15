@@ -1,9 +1,21 @@
-import torch
-import torch.nn.functional as F
-
-from board import Board
-from model import Model
-
+# import torch
+#
+# from board import Board
+# from model import Model
+#
+# board = Board()
+#
+# input_channels = Board.WIDTH * Board.HEIGHT
+#
+# num_actions = 9
+# learning_rate = 0.01
+# num_epochs = 10
+#
+# possible_actions = board.get_all_possible_actions()
+#
+# print(len(possible_actions))
+#
+# model = Model(input_channels, len(possible_actions))
 # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 #
 # for epoch in range(num_epochs):
@@ -19,20 +31,5 @@ from model import Model
 #         optimizer.zero_grad()
 #         loss.backward()
 #         optimizer.step()
-#
-
-board = Board()
-
-input_channels = Board.WIDTH * Board.HEIGHT
-
-num_actions = 9
-learning_rate = 0.01
-
-num_epochs = 10
 
 
-possible_actions = board.get_all_possible_actions()
-
-print(len(possible_actions))
-
-model = Model(input_channels, len(possible_actions))

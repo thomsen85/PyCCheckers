@@ -73,13 +73,13 @@ class Board:
     def fill_cells(self, cells, value):
         """Method for filling a list of cells with a value"""
         for x, y in cells:
-            self.set_board_value(x, y, value)
+            self.set_cell(x, y, value)
 
-    def get_board_value(self, x, y):
+    def get_cell(self, x, y):
         """Method for getting the value at given x and y location"""
         return self.board[Board.HEIGHT - 1 - y][x]
 
-    def set_board_value(self, x, y, value):
+    def set_cell(self, x, y, value):
         """Method for setting a value at given x and y location"""
         self.board[Board.HEIGHT - 1 - y][x] = value
 
@@ -87,19 +87,19 @@ class Board:
         position = []
         for x in range(Board.WIDTH):
             for y in range(Board.HEIGHT):
-                if self.get_board_value(x, y) == player + 1:
+                if self.get_cell(x, y) == player:
                     position.append((x, y))
 
         return position
 
     def move(self, current_x, current_y, to_x, to_y):
         """Method for moveing a piecefrom one cell to another"""
-        self.set_board_value(to_x, to_y, self.get_board_value(current_x, current_y))
-        self.set_board_value(current_x, current_y, 1)
+        self.set_cell(to_x, to_y, self.get_cell(current_x, current_y))
+        self.set_cell(current_x, current_y, 1)
 
     def player_in_territory(self, player, territory):
         for p_x, p_y in territory:
-            if self.get_board_value(p_x, p_y) != player:
+            if self.get_cell(p_x, p_y) != player:
                 return False
 
         return True
@@ -143,7 +143,7 @@ class Board:
         # TODO: Convert to set instead of list
 
         # Check that a player is being moved.
-        if self.get_board_value(x, y) <= 1 and not jump:
+        if self.get_cell(x, y) <= 1 and not jump:
             return []
 
         moves = []
@@ -154,16 +154,16 @@ class Board:
             prev = []
 
         for surr_x, surr_y in self.get_surrounding(x, y):
-            if self.get_board_value(surr_x, surr_y) == 1 and not jump:
+            if self.get_cell(surr_x, surr_y) == 1 and not jump:
                 moves.append((surr_x, surr_y))
 
-            elif self.get_board_value(surr_x, surr_y) > 1:
+            elif self.get_cell(surr_x, surr_y) > 1:
                 over_piece_pos = self.get_coord_over_piece(x, y, surr_x, surr_y)
                 if not over_piece_pos is None:
                     over_x, over_y = over_piece_pos
                     # print(f"At: {x}, {y}, {prev=}, {over_x}, {over_y}")
                     if (
-                        self.get_board_value(over_x, over_y) == 1
+                        self.get_cell(over_x, over_y) == 1
                         and not (over_x, over_y) in prev
                     ):
                         # print(f"Checking {over_x},{over_y}, {prev=}")
@@ -176,7 +176,8 @@ class Board:
     def get_all_legal_moves_by_player(self, player):
         moves = []
         for x, y in self.get_player_positions(player):
-            moves.extend(self.get_legal_moves(x, y))
+            for to_x, to_y in self.get_legal_moves(x, y):
+                moves.append((x, y, to_x, to_y))
 
         return moves
 
@@ -276,6 +277,9 @@ class Board:
                             actions.append((x, y, to_x, to_y))
 
         return actions
+
+    def __iter__(self):
+        return self.board.__iter__()
 
 
 if __name__ == "__main__":

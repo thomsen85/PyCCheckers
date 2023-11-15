@@ -1,4 +1,6 @@
 import copy
+import math
+from typing import Tuple
 
 from board import Board
 
@@ -9,18 +11,20 @@ class MinimaxPlayer:
 
     ONLY works for two players.
     It evals a positon based on the distance from the goal and if it has won or not.
-
     """
 
     def __init__(self, player_nr, max_depth=3):
         self.player_nr = player_nr
         self.max_depth = max_depth
 
+        self.other_player = Board.PLAYER_2_NR if player_nr == Board.PLAYER_1_NR else Board.PLAYER_1_NR
+
     def get_best_move(self, board):
         """Gets the best move from the current board state, does not check if it is its own turn."""
-        _, best_move = self._minimax(
+        eval, best_move = self._minimax(
             board, self.max_depth, float("-inf"), float("inf"), True
         )
+        print(eval)
         return best_move
 
     def _eval_position(self, board: Board):
@@ -32,23 +36,17 @@ class MinimaxPlayer:
 
         player_goal_y = board.HEIGHT if self.player_nr == Board.PLAYER_1_NR else 0
         other_goal_y = board.HEIGHT if self.player_nr != Board.PLAYER_1_NR else 0
+        mid = Board.WIDTH // 2
 
-        score = 0
+        dist = 0
         for x, y in board.get_player_positions(self.player_nr):
-            score += abs(y - player_goal_y)
-            score += abs(x - Board.WIDTH // 2)
+            dist += (player_goal_y - y)**2 + (mid - x)**2
 
-        other_player = (
-            Board.PLAYER_1_NR
-            if self.player_nr == Board.PLAYER_2_NR
-            else Board.PLAYER_2_NR
-        )
+        other_dist = 0
+        for x, y in board.get_player_positions(self.other_player):
+            other_dist += (other_goal_y - y)**2 + (mid - x)**2
 
-        for x, y in board.get_player_positions(other_player):
-            score -= abs(y - other_goal_y)
-            score -= abs(x - Board.WIDTH // 2)
-
-        return score
+        return other_dist - dist
 
     def _minimax(self, board, depth, alpha, beta, maximizing_player):
         if depth == 0 or board.is_won() != 0:
@@ -59,30 +57,28 @@ class MinimaxPlayer:
             best_move = None
             for move in board.get_all_legal_moves_by_player(self.player_nr):
                 new_board = copy.deepcopy(board)
-                x, y = move
-                for new_x, new_y in new_board.get_legal_moves(x, y):
-                    new_board.move(x, y, new_x, new_y)
-                    eval, _ = self._minimax(new_board, depth - 1, alpha, beta, False)
-                    if eval > max_eval:
-                        max_eval = eval
-                        best_move = move
-                    alpha = max(alpha, eval)
-                    if beta <= alpha:
-                        break
+                x, y, to_x, to_y = move
+                new_board.move(x, y, to_x, to_y)
+                eval, _ = self._minimax(new_board, depth - 1, alpha, beta, False)
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = move
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break
             return max_eval, best_move
         else:
             min_eval = float("inf")
             best_move = None
-            for move in board.get_all_legal_moves_by_player(3 - self.player_nr):
+            for move in board.get_all_legal_moves_by_player(self.other_player):
                 new_board = copy.deepcopy(board)
-                x, y = move
-                for new_x, new_y in new_board.get_legal_moves(x, y):
-                    new_board.move(x, y, new_x, new_y)
-                    eval, _ = self._minimax(new_board, depth - 1, alpha, beta, True)
-                    if eval < min_eval:
-                        min_eval = eval
-                        best_move = move
-                    beta = min(beta, eval)
-                    if beta <= alpha:
-                        break
+                x, y, to_x, to_y = move
+                new_board.move(x, y, to_x, to_y)
+                eval, _ = self._minimax(new_board, depth - 1, alpha, beta, True)
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = move
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break
             return min_eval, best_move

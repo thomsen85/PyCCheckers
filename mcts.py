@@ -1,26 +1,29 @@
 class Node:
-    def __init__(self, name, parent=None):
-        self.name = name
+    def __init__(self, state, parent=None):
+        self.state = state
+
         self.parent = parent
-        self.data = [0, 0]
         self.children = []
+
+        self.visits = 0
+        self.value = 0
 
     def add_child(self, child):
         self.children.append(child)
         child.parent = self
 
-    def backpropegate(self, updater):
-        self.data[0] += updater[0]
-        self.data[1] += updater[1]
+    def backpropergate(self, value, visits=1):
+        self.visits += visits
+        self.value += value
 
         if not self.is_root:
-            self.parent.backpropegate(updater)
+            self.parent.backpropergate(value, visits)
 
     def __eq__(self, obj):
-        return self.name == obj
+        return self.state == obj
 
     def __str__(self):
-        return f"{self.name}: {self.data}"
+        return f"{self.state}: {self.value} / {self.visits}"
 
     @property
     def is_root(self):
@@ -33,8 +36,10 @@ class Tree:
     def __init__(self, root_node):
         self.root_node = root_node
 
+
+
     def add_game(self, moves, won):
-        backprop_data = (1, 1) if won else (0, 1)
+        backprop_data =
 
         parent = self.root_node
         new_branch = False
@@ -48,7 +53,7 @@ class Tree:
                 parent.add_child(new_parent)
                 parent = new_parent
 
-        parent.backpropegate(backprop_data)
+        parent.backpropergate(backprop_data)
 
     def move_in_children(self, move, children):
         for child in children:
